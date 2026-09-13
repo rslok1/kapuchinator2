@@ -34,13 +34,21 @@ jobs:
             libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev \
             libssl-dev libffi-dev liblzma-dev build-essential
 
-      # Один шаг: только setup, без пакетов и без with
+      # Ставим базовый Android SDK (cmdline-tools и т.д.)
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
+      # Экспортируем ANDROID_HOME, чтобы Buildozer его точно увидел
+      - name: Export ANDROID_HOME
+        run: echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+
+      # Принимаем лицензии и ставим нужные компоненты
       - name: Accept licenses and install Android components
         run: |
+          # Принятие лицензий (обязательно, иначе build-tools не установится)
           yes | sdkmanager --licenses || true
+
+          # Установка компонентов
           sdkmanager "build-tools;33.0.2" "platforms;android-33" "ndk;25.2.9519653"
 
       - name: Install Python dependencies and Buildozer
