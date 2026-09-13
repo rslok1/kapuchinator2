@@ -20,5 +20,3 @@ android.api = 33
 android.min_api = 21
 android.ndk = 25.2.9519653
 android.accept_sdk_license = True
-android.sdk_path = /usr/local/lib/android/sdk
-android.ndk_path = /usr/local/lib/android/sdk/ndk/25.2.9519653
