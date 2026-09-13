@@ -34,13 +34,11 @@ jobs:
             libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev \
             libssl-dev libffi-dev liblzma-dev build-essential
 
-      # Единственный шаг для Android SDK (без дублирования uses/with)
+      # Один шаг: только setup, без пакетов и без with
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
-        with:
-          packages: []  # пакеты установим вручную ниже
 
-      - name: Accept Android licenses and install components
+      - name: Accept licenses and install Android components
         run: |
           yes | sdkmanager --licenses || true
           sdkmanager "build-tools;33.0.2" "platforms;android-33" "ndk;25.2.9519653"
