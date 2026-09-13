@@ -5,7 +5,7 @@ package.domain = org.fixiki
 source.dir = .
 source.include_exts = py,png,jpg,jpeg,mp3,wav
 version = 0.1
-requirements = python3,pygame
+requirements = python3==3.11,pygame
 orientation = landscape
 fullscreen = 1
 
