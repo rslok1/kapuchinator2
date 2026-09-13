@@ -17,9 +17,8 @@ warn_on_root = 1
 fullscreen = 1
 android.archs = arm64-v8a
 android.api = 33
-android.minapi = 21
+android.min_api = 21
+android.ndk = 25.2.9519653
 android.accept_sdk_license = True
-
-# Жёстко задаем проверенные пути GitHub Runner, чтобы Buildozer не искал несуществующие папки
 android.sdk_path = /usr/local/lib/android/sdk
 android.ndk_path = /usr/local/lib/android/sdk/ndk/25.2.9519653
