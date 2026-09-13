@@ -22,34 +22,40 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Python 3.11 (Required for Pygame/Android compatibility)
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies and Buildozer
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev \
             libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev \
             libssl-dev libffi-dev liblzma-dev build-essential
+
+      - name: Setup Android SDK, NDK, CMake
+        uses: android-actions/setup-android@v2
+        with:
+          sdk-version: '33'
+          build-tools-version: '33.0.2'
+          ndk-version: '25.2.9519653'
+
+      # Принятие лицензий (обязательно для Buildozer)
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Install Python dependencies
+        run: |
           pip install --upgrade pip setuptools wheel
           pip install git+https://github.com/kivy/buildozer.git
           pip install "cython<3.0" virtualenv
 
-      - name: Setup Android SDK, NDK and AIDL fix
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" "platforms;android-33" "ndk;25.2.9519653"
-          
-          # Устраняем ошибку "Aidl not found" раз и навсегда
-          sudo cp /usr/local/lib/android/sdk/build-tools/33.0.2/aidl /usr/local/bin/aidl
-          sudo chmod +x /usr/local/bin/aidl
-          echo "/usr/local/lib/android/sdk/build-tools/33.0.2" >> $GITHUB_PATH
-
       - name: Build APK with Buildozer
-        run: |
-          buildozer -v android debug
+        run: buildozer -v android debug
+        env:
+          ANDROID_HOME: ${{ steps.setup-android.outputs.android-home }}
+          ANDROID_NDK_HOME: ${{ steps.setup-android.outputs.ndk-path }}
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v5
