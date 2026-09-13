@@ -42,16 +42,14 @@ jobs:
           # 1. Принимаем ВСЕ лицензии в системном SDK
           yes | sdkmanager --licenses || true
 
-          # 2. Устанавливаем нужные компоненты
-          #    33.0.2 — то, что мы указали в buildozer.spec
-          #    37.0.0 — то, что запрашивает Gradle plugin
-          sdkmanager "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "platforms;android-37" "ndk;25.2.9519653"
+          # 2. Устанавливаем компоненты
+          sdkmanager "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "ndk;25.2.9519653"
 
-          # 3. Создаём симлинк: системный SDK → путь, который ожидает Buildozer
+          # 3. Симлинк: системный SDK → путь, который ожидает Buildozer
           mkdir -p /home/runner/.buildozer/android/platform/
           ln -sf "$ANDROID_HOME" /home/runner/.buildozer/android/platform/android-sdk
 
-          # 4. Проверяем, что aidl действительно доступен
+          # 4. Проверяем, что aidl доступен
           echo "=== Checking aidl ==="
           ls -la "$ANDROID_HOME/build-tools/33.0.2/aidl" || echo "aidl 33.0.2 not found"
           ls -la "$ANDROID_HOME/build-tools/37.0.0/aidl" || echo "aidl 37.0.0 not found"
@@ -62,7 +60,6 @@ jobs:
           pip install git+https://github.com/kivy/buildozer.git
           pip install "cython<3.0" virtualenv
 
-      # КЛЮЧЕВОЕ: echo y | — автоматически принимает лицензии внутри Buildozer
       - name: Build APK with Buildozer
         run: echo y | buildozer -v android debug
 
