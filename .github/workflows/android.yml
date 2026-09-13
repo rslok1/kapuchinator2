@@ -51,11 +51,8 @@ jobs:
           ln -sf "$ANDROID_HOME" /home/runner/.buildozer/android/platform/android-sdk
 
           # 4. Заменяем старый tools/bin/sdkmanager на wrapper к cmdline-tools
-          #    (старый падает с NoClassDefFoundError на Java 17)
-          cat > "$ANDROID_HOME/tools/bin/sdkmanager" << 'WRAPPER'
-#!/bin/bash
-exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "$@"
-WRAPPER
+          echo '#!/bin/bash' > "$ANDROID_HOME/tools/bin/sdkmanager"
+          echo 'exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "$@"' >> "$ANDROID_HOME/tools/bin/sdkmanager"
           chmod +x "$ANDROID_HOME/tools/bin/sdkmanager"
 
           # 5. Проверки
