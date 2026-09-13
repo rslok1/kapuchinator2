@@ -34,11 +34,15 @@ jobs:
             libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev \
             libssl-dev libffi-dev liblzma-dev build-essential
 
+      # Единственный шаг для Android SDK (без дублирования uses/with)
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
+        with:
+          packages: []  # пакеты установим вручную ниже
 
-      - name: Install Android SDK components
+      - name: Accept Android licenses and install components
         run: |
+          yes | sdkmanager --licenses || true
           sdkmanager "build-tools;33.0.2" "platforms;android-33" "ndk;25.2.9519653"
 
       - name: Install Python dependencies and Buildozer
@@ -51,10 +55,6 @@ jobs:
         run: buildozer -v android debug
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: Capuchinator-APK
-          path: bin/*.apk
         uses: actions/upload-artifact@v5
         with:
           name: Capuchinator-APK
