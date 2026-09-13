@@ -34,22 +34,34 @@ jobs:
             libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev \
             libssl-dev libffi-dev liblzma-dev build-essential
 
-      # Ставим базовый Android SDK (cmdline-tools и т.д.)
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-      # Экспортируем ANDROID_HOME, чтобы Buildozer его точно увидел
+      # Важно: явно экспортируем ANDROID_HOME, чтобы все шаги его видели
       - name: Export ANDROID_HOME
         run: echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
 
-      # Принимаем лицензии и ставим нужные компоненты
       - name: Accept licenses and install Android components
         run: |
-          # Принятие лицензий (обязательно, иначе build-tools не установится)
+          # Сначала принимаем лицензии — это критично
+          echo "Accepting Android SDK licenses..."
           yes | sdkmanager --licenses || true
 
-          # Установка компонентов
+          # Проверяем, что sdkmanager видит лицензии
+          sdkmanager --list > /tmp/sdk-list.txt
+          cat /tmp/sdk-list.txt | head -n 20
+
+          # Ставим компоненты
+          echo "Installing build-tools, platforms, ndk..."
           sdkmanager "build-tools;33.0.2" "platforms;android-33" "ndk;25.2.9519653"
+
+          # Проверка: убедимся, что aidl действительно появился
+          if [ -f "$ANDROID_HOME/build-tools/33.0.2/aidl" ]; then
+            echo "✅ aidl found at $ANDROID_HOME/build-tools/33.0.2/aidl"
+          else
+            echo "❌ aidl NOT found — build will fail"
+            exit 1
+          fi
 
       - name: Install Python dependencies and Buildozer
         run: |
