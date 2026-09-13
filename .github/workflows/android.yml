@@ -37,31 +37,24 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-      # Важно: явно экспортируем ANDROID_HOME, чтобы все шаги его видели
-      - name: Export ANDROID_HOME
-        run: echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-
-      - name: Accept licenses and install Android components
+      - name: Accept licenses, install components and symlink SDK for Buildozer
         run: |
-          # Сначала принимаем лицензии — это критично
-          echo "Accepting Android SDK licenses..."
+          # 1. Принимаем ВСЕ лицензии в системном SDK
           yes | sdkmanager --licenses || true
 
-          # Проверяем, что sdkmanager видит лицензии
-          sdkmanager --list > /tmp/sdk-list.txt
-          cat /tmp/sdk-list.txt | head -n 20
+          # 2. Устанавливаем нужные компоненты
+          #    33.0.2 — то, что мы указали в buildozer.spec
+          #    37.0.0 — то, что запрашивает Gradle plugin
+          sdkmanager "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "platforms;android-37" "ndk;25.2.9519653"
 
-          # Ставим компоненты
-          echo "Installing build-tools, platforms, ndk..."
-          sdkmanager "build-tools;33.0.2" "platforms;android-33" "ndk;25.2.9519653"
+          # 3. Создаём симлинк: системный SDK → путь, который ожидает Buildozer
+          mkdir -p /home/runner/.buildozer/android/platform/
+          ln -sf "$ANDROID_HOME" /home/runner/.buildozer/android/platform/android-sdk
 
-          # Проверка: убедимся, что aidl действительно появился
-          if [ -f "$ANDROID_HOME/build-tools/33.0.2/aidl" ]; then
-            echo "✅ aidl found at $ANDROID_HOME/build-tools/33.0.2/aidl"
-          else
-            echo "❌ aidl NOT found — build will fail"
-            exit 1
-          fi
+          # 4. Проверяем, что aidl действительно доступен
+          echo "=== Checking aidl ==="
+          ls -la "$ANDROID_HOME/build-tools/33.0.2/aidl" || echo "aidl 33.0.2 not found"
+          ls -la "$ANDROID_HOME/build-tools/37.0.0/aidl" || echo "aidl 37.0.0 not found"
 
       - name: Install Python dependencies and Buildozer
         run: |
@@ -69,8 +62,9 @@ jobs:
           pip install git+https://github.com/kivy/buildozer.git
           pip install "cython<3.0" virtualenv
 
+      # КЛЮЧЕВОЕ: echo y | — автоматически принимает лицензии внутри Buildozer
       - name: Build APK with Buildozer
-        run: buildozer -v android debug
+        run: echo y | buildozer -v android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v5
