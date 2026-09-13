@@ -37,22 +37,35 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Accept licenses, install components and symlink SDK for Buildozer
+      - name: Accept licenses, install components and fix sdkmanager
         run: |
-          # 1. Принимаем ВСЕ лицензии в системном SDK
+          # 1. Принимаем лицензии
           yes | sdkmanager --licenses || true
 
-          # 2. Устанавливаем компоненты
-          sdkmanager "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" "ndk;25.2.9519653"
+          # 2. Ставим ВСЁ нужное заранее, включая platform-tools
+          sdkmanager "platform-tools" "build-tools;33.0.2" "build-tools;37.0.0" \
+            "platforms;android-33" "ndk;25.2.9519653"
 
-          # 3. Симлинк: системный SDK → путь, который ожидает Buildozer
+          # 3. Симлинк системного SDK в путь Buildozer
           mkdir -p /home/runner/.buildozer/android/platform/
           ln -sf "$ANDROID_HOME" /home/runner/.buildozer/android/platform/android-sdk
 
-          # 4. Проверяем, что aidl доступен
+          # 4. Заменяем старый tools/bin/sdkmanager на wrapper к cmdline-tools
+          #    (старый падает с NoClassDefFoundError на Java 17)
+          cat > "$ANDROID_HOME/tools/bin/sdkmanager" << 'WRAPPER'
+#!/bin/bash
+exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "$@"
+WRAPPER
+          chmod +x "$ANDROID_HOME/tools/bin/sdkmanager"
+
+          # 5. Проверки
           echo "=== Checking aidl ==="
           ls -la "$ANDROID_HOME/build-tools/33.0.2/aidl" || echo "aidl 33.0.2 not found"
           ls -la "$ANDROID_HOME/build-tools/37.0.0/aidl" || echo "aidl 37.0.0 not found"
+          echo "=== Checking platform-tools ==="
+          ls "$ANDROID_HOME/platform-tools/adb" || echo "platform-tools not found"
+          echo "=== Checking sdkmanager wrapper ==="
+          "$ANDROID_HOME/tools/bin/sdkmanager" --version
 
       - name: Install Python dependencies and Buildozer
         run: |
