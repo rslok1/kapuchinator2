@@ -34,18 +34,14 @@ jobs:
             libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev \
             libssl-dev libffi-dev liblzma-dev build-essential
 
-      - name: Setup Android SDK, NDK, CMake
-        uses: android-actions/setup-android@v2
-        with:
-          sdk-version: '33'
-          build-tools-version: '33.0.2'
-          ndk-version: '25.2.9519653'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
 
-      # Принятие лицензий (обязательно для Buildozer)
-      - name: Accept Android licenses
-        run: yes | sdkmanager --licenses || true
+      - name: Install Android SDK components
+        run: |
+          sdkmanager "build-tools;33.0.2" "platforms;android-33" "ndk;25.2.9519653"
 
-      - name: Install Python dependencies
+      - name: Install Python dependencies and Buildozer
         run: |
           pip install --upgrade pip setuptools wheel
           pip install git+https://github.com/kivy/buildozer.git
@@ -53,11 +49,12 @@ jobs:
 
       - name: Build APK with Buildozer
         run: buildozer -v android debug
-        env:
-          ANDROID_HOME: ${{ steps.setup-android.outputs.android-home }}
-          ANDROID_NDK_HOME: ${{ steps.setup-android.outputs.ndk-path }}
 
       - name: Upload APK Artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: Capuchinator-APK
+          path: bin/*.apk
         uses: actions/upload-artifact@v5
         with:
           name: Capuchinator-APK
