@@ -13,11 +13,14 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
 
+      # === КРИТИЧЕСКИ ВАЖНО: очистка ДО всего остального ===
       - name: Clean Buildozer & pip cache (FULL)
         run: |
           rm -rf ~/.buildozer
           rm -rf .buildozer
           rm -rf /home/runner/.cache/pip
+          # Удаляем старые сборки, чтобы не было «залипших» версий
+          rm -rf /home/runner/.buildozer/android/platform/build-*
 
       - name: Checkout repository
         uses: actions/checkout@v5
