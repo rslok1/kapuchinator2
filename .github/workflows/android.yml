@@ -1,7 +1,3 @@
-name: Build Android APK
-on:
-  workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -12,6 +8,16 @@ jobs:
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/gch
           sudo rm -rf "/usr/local/share/boost"
+
+      # === ВСТАВИТЬ СЮДА (сразу после освобождения места) ===
+      - name: Clean Buildozer & pip cache (FULL)
+        run: |
+          rm -rf ~/.buildozer
+          rm -rf .buildozer
+          rm -rf /home/runner/.cache/pip
+          # Дополнительно: удаляем старые скачанные NDK/SDK, если они лежат в кэше Buildozer
+          rm -rf /home/runner/.buildozer/android/platform/build-*
+      # =======================================================
 
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -39,36 +45,17 @@ jobs:
 
       - name: Accept licenses, install components and fix sdkmanager
         run: |
-          # 1. Принимаем лицензии
           yes | sdkmanager --licenses || true
 
-          # 2. Ставим всё нужное заранее, включая platform-tools
           sdkmanager "platform-tools" "build-tools;33.0.2" "build-tools;37.0.0" \
             "platforms;android-33" "ndk;25.2.9519653"
 
-          # 3. Симлинк системного SDK в путь Buildozer
           mkdir -p /home/runner/.buildozer/android/platform/
           ln -sf "$ANDROID_HOME" /home/runner/.buildozer/android/platform/android-sdk
 
-          # 4. Заменяем старый tools/bin/sdkmanager на wrapper к cmdline-tools
           echo '#!/bin/bash' > "$ANDROID_HOME/tools/bin/sdkmanager"
           echo 'exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "$@"' >> "$ANDROID_HOME/tools/bin/sdkmanager"
           chmod +x "$ANDROID_HOME/tools/bin/sdkmanager"
-
-          # 5. Проверки
-          echo "=== Checking aidl ==="
-          ls -la "$ANDROID_HOME/build-tools/33.0.2/aidl" || echo "aidl 33.0.2 not found"
-          ls -la "$ANDROID_HOME/build-tools/37.0.0/aidl" || echo "aidl 37.0.0 not found"
-          echo "=== Checking platform-tools ==="
-          ls "$ANDROID_HOME/platform-tools/adb" || echo "platform-tools not found"
-          echo "=== Checking sdkmanager wrapper ==="
-          "$ANDROID_HOME/tools/bin/sdkmanager" --version
-
-      # ВАЖНО: очистка кэша перед сборкой — убирает ошибку longintrepr.h
-      - name: Clean Buildozer cache
-        run: |
-          rm -rf ~/.buildozer
-          rm -rf .buildozer
 
       - name: Install Python dependencies and Buildozer
         run: |
