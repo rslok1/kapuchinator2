@@ -1,3 +1,7 @@
+name: Build Android APK
+on:
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -6,18 +10,14 @@ jobs:
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/gch
+          sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
 
-      # === ВСТАВИТЬ СЮДА (сразу после освобождения места) ===
       - name: Clean Buildozer & pip cache (FULL)
         run: |
           rm -rf ~/.buildozer
           rm -rf .buildozer
           rm -rf /home/runner/.cache/pip
-          # Дополнительно: удаляем старые скачанные NDK/SDK, если они лежат в кэше Buildozer
-          rm -rf /home/runner/.buildozer/android/platform/build-*
-      # =======================================================
 
       - name: Checkout repository
         uses: actions/checkout@v5
