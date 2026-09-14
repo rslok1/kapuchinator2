@@ -1,21 +1,13 @@
 [app]
-title = Капучинатор
+title = Capuchinator
 package.name = capuchinator
-package.domain = org.fixiki
+package.domain = org.test
 source.dir = .
-source.include_exts = py,png,jpg,jpeg,mp3,wav
-version = 0.1
+source.include_exts = py,png,jpg,kv,atlas
+orientation = portrait
 requirements = python3==3.11,pygame
-orientation = landscape
-fullscreen = 1
-
-[buildozer]
-log_level = 2
-warn_on_root = 1
-
-[android]
-fullscreen = 1
-android.archs = arm64-v8a
-android.api = 33
-android.min_api = 21
-android.accept_sdk_license = True
+p4a.args = --python-version=3.11 --hostpython-version=3.11
+p4a.source_dir = https://github.com/kivy/python-for-android
+p4a.branch = master
+android.ndk_api = 24
+android.api = 36
