@@ -43,23 +43,23 @@ jobs:
 
       - name: Setup Android SDK manually
         run: |
-          # Используем SDK, который уже установлен на runner
           export ANDROID_HOME=/usr/local/lib/android/sdk
           export ANDROID_SDK_ROOT=$ANDROID_HOME
 
-          # Принимаем лицензии
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-          # Ставим нужные компоненты (без tools!)
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
             "platform-tools" \
             "build-tools;33.0.2" \
             "platforms;android-33" \
             "ndk;25.2.9519653"
 
-          # Симлинк для Buildozer
           mkdir -p /home/runner/.buildozer/android/platform/
           ln -sf "$ANDROID_HOME" /home/runner/.buildozer/android/platform/android-sdk
+
+          mkdir -p "$ANDROID_HOME/tools/bin"
+          printf '#!/bin/bash\nexec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "$@"\n' > "$ANDROID_HOME/tools/bin/sdkmanager"
+          chmod +x "$ANDROID_HOME/tools/bin/sdkmanager"
 
       - name: Install Python dependencies and Buildozer
         run: |
