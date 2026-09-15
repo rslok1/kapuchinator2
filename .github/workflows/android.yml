@@ -13,13 +13,11 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
 
-      # === КРИТИЧЕСКИ ВАЖНО: очистка ДО всего остального ===
       - name: Clean Buildozer & pip cache (FULL)
         run: |
           rm -rf ~/.buildozer
           rm -rf .buildozer
           rm -rf /home/runner/.cache/pip
-          # Удаляем старые сборки, чтобы не было «залипших» версий
           rm -rf /home/runner/.buildozer/android/platform/build-*
 
       - name: Checkout repository
@@ -46,7 +44,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Accept licenses, install components and fix sdkmanager
+      - name: Accept licenses and install components
         run: |
           yes | sdkmanager --licenses || true
 
@@ -55,10 +53,6 @@ jobs:
 
           mkdir -p /home/runner/.buildozer/android/platform/
           ln -sf "$ANDROID_HOME" /home/runner/.buildozer/android/platform/android-sdk
-
-          echo '#!/bin/bash' > "$ANDROID_HOME/tools/bin/sdkmanager"
-          echo 'exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "$@"' >> "$ANDROID_HOME/tools/bin/sdkmanager"
-          chmod +x "$ANDROID_HOME/tools/bin/sdkmanager"
 
       - name: Install Python dependencies and Buildozer
         run: |
