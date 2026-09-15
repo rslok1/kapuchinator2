@@ -41,16 +41,23 @@ jobs:
             libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev \
             libssl-dev libffi-dev liblzma-dev build-essential
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
-
-      - name: Accept licenses and install components
+      - name: Setup Android SDK manually
         run: |
-          yes | sdkmanager --licenses || true
+          # Используем SDK, который уже установлен на runner
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
 
-          sdkmanager "platform-tools" "build-tools;33.0.2" "build-tools;37.0.0" \
-            "platforms;android-33" "ndk;25.2.9519653"
+          # Принимаем лицензии
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
+          # Ставим нужные компоненты (без tools!)
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "build-tools;33.0.2" \
+            "platforms;android-33" \
+            "ndk;25.2.9519653"
+
+          # Симлинк для Buildozer
           mkdir -p /home/runner/.buildozer/android/platform/
           ln -sf "$ANDROID_HOME" /home/runner/.buildozer/android/platform/android-sdk
 
