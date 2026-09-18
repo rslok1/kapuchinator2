@@ -3,8 +3,9 @@ import os
 import pygame
 
 # ================= ФИКС ПУТЕЙ ДЛЯ ANDROID =================
-# Этот код находит точную папку, куда Android распаковал ваши картинки и музыку
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# На Android __file__ указывает не туда, где лежат ресурсы.
+# os.path.abspath('.') возвращает папку, куда распакованы картинки и звуки.
+BASE_DIR = os.path.abspath('.')
 
 
 def get_path(filename):
@@ -20,9 +21,7 @@ except Exception as e:
     print(f"Не удалось запустить микшер звука: {e}")
 
 WIDTH, HEIGHT = 1000, 650
-screen = pygame.display.set_mode(
-    (WIDTH, HEIGHT), pygame.SCALED
-)
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED)
 pygame.display.set_caption("Капучинатор - Фиксики")
 
 clock = pygame.time.Clock()
@@ -53,7 +52,6 @@ def load_image(filename, size, fallback_color, text=""):
         img = pygame.image.load(full_path).convert_alpha()
         return pygame.transform.scale(img, size)
     except Exception as e:
-        # Если не нашел — создаст цветной квадрат
         print(f"Ошибка загрузки картинки {filename} по пути {full_path}: {e}")
         surf = pygame.Surface(size, pygame.SRCALPHA)
         surf.fill(fallback_color)
@@ -538,7 +536,7 @@ async def main():
                 screen, BLACK, shop_hero1_btn, 2, border_radius=12
             )
             h1_lbl = (
-                "Герой 1 открыт"
+                "Новый Герой 1 открыт"
                 if h1_unlocked
                 else "Открыть Героя 1 (За рекламу)"
             )
@@ -560,7 +558,7 @@ async def main():
                 screen, BLACK, shop_hero2_btn, 2, border_radius=12
             )
             h2_lbl = (
-                "Герой 2 открыт"
+                "Новый Герой 2 открыт"
                 if h2_unlocked
                 else "Открыть Героя 2 (За рекламу)"
             )
@@ -611,4 +609,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
