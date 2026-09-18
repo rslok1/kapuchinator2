@@ -1,5 +1,4 @@
 import asyncio
-import sys
 import pygame
 
 # Инициализация Pygame
@@ -7,7 +6,7 @@ pygame.init()
 pygame.mixer.init()
 
 WIDTH, HEIGHT = 1000, 650
-screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.FULLSCREEN)
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED)
 pygame.display.set_caption("Капучинатор - Фиксики")
 
 clock = pygame.time.Clock()
@@ -420,7 +419,7 @@ async def main():
                 # Кнопка перехода в МАГАЗИН
                 pygame.draw.rect(screen, GOLD, shop_open_btn, border_radius=12)
                 pygame.draw.rect(screen, BLACK, shop_open_btn, 2, border_radius=12)
-                shop_txt = font_medium.render("МАГАЗИН 🛒", True, BLACK)
+                shop_txt = font_medium.render("МАГАЗИН ", True, BLACK)
                 screen.blit(
                     shop_txt,
                     (
@@ -436,7 +435,7 @@ async def main():
                     pygame.draw.rect(screen, b_color, btn["rect"], border_radius=12)
                     pygame.draw.rect(screen, BLACK, btn["rect"], 2, border_radius=12)
 
-                    label = btn["title"] if secret_unlocked[b_id] else "🔒 Реклама за песню"
+                    label = btn["title"] if secret_unlocked[b_id] else " Реклама за песню"
                     txt = font_small.render(label, True, WHITE)
                     screen.blit(
                         txt,
@@ -504,9 +503,9 @@ async def main():
                 pygame.draw.rect(screen, BLACK, s_btn["rect"], 2, border_radius=12)
 
                 lbl = (
-                    f"▶ Играть {s_btn['title']}"
+                    f" Играть {s_btn['title']}"
                     if is_unlocked
-                    else f"📺 {s_btn['title']} (За рекламу)"
+                    else f" {s_btn['title']} (За рекламу)"
                 )
                 txt = font_small.render(lbl, True, BLACK)
                 screen.blit(
@@ -523,9 +522,9 @@ async def main():
             pygame.draw.rect(screen, h1_color, shop_hero1_btn, border_radius=12)
             pygame.draw.rect(screen, BLACK, shop_hero1_btn, 2, border_radius=12)
             h1_lbl = (
-                "✓ Новый Герой 1 открыт"
+                " Новый Герой 1 открыт"
                 if h1_unlocked
-                else "📺 Открыть Героя 1 (За рекламу)"
+                else " Открыть Героя 1 (За рекламу)"
             )
             h1_txt = font_small.render(h1_lbl, True, WHITE)
             screen.blit(
@@ -542,9 +541,9 @@ async def main():
             pygame.draw.rect(screen, h2_color, shop_hero2_btn, border_radius=12)
             pygame.draw.rect(screen, BLACK, shop_hero2_btn, 2, border_radius=12)
             h2_lbl = (
-                "✓ Новый Герой 2 открыт"
+                "Новый Герой 2 открыт"
                 if h2_unlocked
-                else "📺 Открыть Героя 2 (За рекламу)"
+                else " Открыть Героя 2 (За рекламу)"
             )
             h2_txt = font_small.render(h2_lbl, True, WHITE)
             screen.blit(
@@ -587,8 +586,9 @@ async def main():
         await asyncio.sleep(0)
 
     pygame.quit()
-    sys.exit()
+    return
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
