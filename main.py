@@ -21,7 +21,7 @@ except Exception as e:
     print(f"Не удалось запустить микшер звука: {e}")
 
 WIDTH, HEIGHT = 1000, 650
-screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED)
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.FULLSCREEN)
 pygame.display.set_caption("Капучинатор - Фиксики")
 
 clock = pygame.time.Clock()
